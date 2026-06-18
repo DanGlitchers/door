@@ -2,125 +2,270 @@
 <html dir="rtl" lang="he">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מכתב אהבה אינטראקטיבי</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>המסע אל הלב שלך</title>
     <style>
         body {
+            background-color: #2b2b2b;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #ff6b81;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        p.instructions {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        /* עיצוב לוח המשחק */
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            grid-template-rows: repeat(10, 30px);
+            gap: 2px;
+            background-color: #1a1a1a;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 107, 129, 0.3);
+            direction: ltr; /* שומר על כיוון המפה */
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #ffe6e6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
+            font-size: 22px;
+            border-radius: 4px;
         }
-        .container {
-            position: relative;
-            width: 300px;
-            height: 400px;
+
+        /* סוגי המשבצות במשחק */
+        .wall { background-color: #57606f; }
+        .path { background-color: #ced6e0; }
+        
+        /* כפתורי שליטה לטלפון */
+        .controls {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 50px 50px 50px;
+            grid-template-rows: 50px 50px;
+            gap: 10px;
+            justify-content: center;
+            direction: ltr;
         }
-        .message-box {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: white;
+
+        .btn {
+            background-color: #ff6b81;
+            border: none;
             border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #c23616;
             display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #c23616;
+        }
+
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+
+        /* חלונית הסיום הקופצת */
+        #win-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            z-index: 100;
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.8s ease;
+            animation: fadeIn 1s forwards;
         }
-        .message-box.show {
-            opacity: 1;
-            transform: scale(1);
+
+        .love-letter {
+            background-color: #fff0f5;
+            color: #2f3542;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(255, 107, 129, 0.5);
+            border: 3px solid #ff4757;
         }
-        .message-box h1 {
-            color: #ff4d4d;
-            font-size: 24px;
-            margin-bottom: 15px;
+
+        .love-letter h2 {
+            color: #ff4757;
+            font-size: 28px;
+            margin-top: 0;
         }
-        .message-box p {
-            color: #333;
+
+        .love-letter p {
             font-size: 18px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
-        .door {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #8b4513;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            transition: transform 1.2s ease;
-            transform-origin: right; /* נפתח כמו דלת אמיתית בעברית */
-        }
-        .door.open {
-            transform: perspective(1200px) rotateY(105deg);
-        }
-        .doorknob {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            width: 20px;
-            height: 20px;
-            background-color: #ffd700;
-            border-radius: 50%;
-            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3);
-        }
-        .heart {
-            font-size: 40px;
-            margin-top: 10px;
-            animation: beat 1s infinite;
-        }
-        @keyframes beat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="message-box" id="message">
-            <h1>הפתעה! ❤️</h1>
-            <p>רציתי להגיד לך משהו חשוב...</p>
-            <p>את/ה פשוט מדהים/ה! תודה שאת/ה תמיד כאן בשבילי.</p>
-            <div class="heart">❤️</div>
-        </div>
-        
-        <div class="door" id="door" onclick="openDoor()">
-            לחץ לפתיחה
-            <div class="doorknob"></div>
+    <h1>מצא את הדרך ללב שלי</h1>
+    <p class="instructions">השתמש בחיצים (או בכפתורים) כדי לאסוף את המפתח ולפתוח את הדלת!</p>
+
+    <div id="game-board"></div>
+
+    <div class="controls">
+        <button class="btn btn-up" onclick="move(0, -1)">⬆️</button>
+        <button class="btn btn-left" onclick="move(-1, 0)">⬅️</button>
+        <button class="btn btn-down" onclick="move(0, 1)">⬇️</button>
+        <button class="btn btn-right" onclick="move(1, 0)">➡️</button>
+    </div>
+
+    <!-- המכתב שיופיע בסוף -->
+    <div id="win-screen">
+        <div class="love-letter">
+            <h2>הצלחת! ❤️</h2>
+            <p>רציתי רק להגיד לך שאת/ה מדהים/ה.</p>
+            <p>הדרך לא תמיד פשוטה (לפעמים יש קירות ודלתות נעולות בדרך), אבל איתך כל פאזל הופך להרפתקה כיפית.</p>
+            <p>תודה שאת/ה תמיד מוצא/ת את המפתח ללב שלי! 💌</p>
         </div>
     </div>
 
     <script>
-        function openDoor() {
-            document.getElementById('door').classList.add('open');
-            setTimeout(() => {
-                document.getElementById('message').classList.add('show');
-            }, 500); // מציג את ההודעה תוך כדי שהדלת נפתחת
-        }
-    </script>
+        // מפת המשחק: # קיר, . שביל, @ שחקן, K מפתח, D דלת, G מטרה
+        let level = [
+            "##########",
+            "#@.......#",
+            "###.####.#",
+            "#K#....#.#",
+            "#...##.#.#",
+            "######D###",
+            "#........#",
+            "#.######.#",
+            "#.......G#",
+            "##########"
+        ];
 
+        let playerPos = { x: 1, y: 1 };
+        let hasKey = false;
+        let gameWon = false;
+
+        const boardElement = document.getElementById('game-board');
+
+        // מילון האימוג'ים שלנו
+        const icons = {
+            'player': '😊',
+            'key': '🔑',
+            'door': '🚪',
+            'goal': '💌',
+            'wall': '',
+            'path': ''
+        };
+
+        function drawBoard() {
+            boardElement.innerHTML = '';
+            for (let y = 0; y < level.length; y++) {
+                for (let x = 0; x < level[y].length; x++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    
+                    let char = level[y][x];
+                    
+                    if (char === '#') cell.classList.add('wall');
+                    else cell.classList.add('path');
+
+                    if (x === playerPos.x && y === playerPos.y) {
+                        cell.innerText = icons.player;
+                    } else if (char === 'K') {
+                        cell.innerText = icons.key;
+                    } else if (char === 'D') {
+                        cell.innerText = icons.door;
+                    } else if (char === 'G') {
+                        cell.innerText = icons.goal;
+                        cell.style.animation = "pulse 1s infinite alternate";
+                    }
+
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        function move(dx, dy) {
+            if (gameWon) return;
+
+            let newX = playerPos.x + dx;
+            let newY = playerPos.y + dy;
+            let targetChar = level[newY][newX];
+
+            // בדיקת התנגשות בקירות
+            if (targetChar === '#') return;
+
+            // בדיקת התנגשות בדלת
+            if (targetChar === 'D') {
+                if (hasKey) {
+                    // פותח את הדלת - מחליף את ה-D בנקודה במפה
+                    level[newY] = level[newY].substring(0, newX) + '.' + level[newY].substring(newX + 1);
+                    hasKey = false; // השתמשנו במפתח
+                } else {
+                    return; // אין מפתח, אי אפשר לעבור
+                }
+            }
+
+            // איסוף מפתח
+            if (targetChar === 'K') {
+                hasKey = true;
+                level[newY] = level[newY].substring(0, newX) + '.' + level[newY].substring(newX + 1);
+            }
+
+            // הגעה ליעד
+            if (targetChar === 'G') {
+                gameWon = true;
+                document.getElementById('win-screen').style.display = 'flex';
+            }
+
+            playerPos.x = newX;
+            playerPos.y = newY;
+            drawBoard();
+        }
+
+        // האזנה למקלדת (למי שמשחק במחשב)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') move(0, -1);
+            if (e.key === 'ArrowDown') move(0, 1);
+            if (e.key === 'ArrowLeft') move(-1, 0);
+            if (e.key === 'ArrowRight') move(1, 0);
+        });
+
+        // ציור ראשוני של הלוח
+        drawBoard();
+    </script>
 </body>
 </html>
