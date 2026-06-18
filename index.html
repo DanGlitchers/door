@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>שאלה חשובה...</title>
+    <title>שאלה חשובה לליב...</title>
     <style>
         body {
             margin: 0;
@@ -20,11 +20,23 @@
         .container {
             text-align: center;
             background-color: white;
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(255, 105, 135, 0.2);
             width: 90%;
             max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* עיצוב לתמונות ול-GIFs */
+        .media-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            max-height: 200px; /* מגביל גובה כדי שלא יתפוס את כל המסך */
         }
 
         /* הסתרת מסכים לא פעילים */
@@ -34,29 +46,34 @@
 
         h1 {
             color: #ff4757;
-            font-size: 26px;
-            margin-bottom: 30px;
+            font-size: 24px;
+            margin-bottom: 25px;
+            line-height: 1.3;
+            margin-top: 0;
         }
 
         .buttons-wrapper {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             position: relative;
+            width: 100%;
         }
 
         button {
             background-color: #ff4757;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 20px;
+            padding: 12px 25px;
+            font-size: 18px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
             z-index: 10;
+            flex: 1; /* שהכפתורים יהיו באותו גודל */
+            max-width: 120px;
         }
 
         button:hover {
@@ -67,23 +84,25 @@
         /* כפתור הלא יהיה בעל מיקום שניתן לשנות */
         #btn-no {
             background-color: #747d8c;
-            box-shadow: 0 5px 15px rgba(116, 125, 140, 0.4);
-            transition: left 0.3s ease, top 0.3s ease; /* תנועה חלקה כשהוא בורח */
+            box-shadow: 0 5px 15px rgba(116, 125, 140, 0.3);
+            transition: left 0.2s ease, top 0.2s ease; /* תנועה מהירה וחלקה */
+            position: relative; /* התחלתי */
         }
 
         #btn-no:hover {
             background-color: #57606f;
         }
 
+        /* מסך סיום - הלב הפועם */
         .heart {
-            font-size: 60px;
+            font-size: 50px;
             animation: pulse 1s infinite alternate;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         @keyframes pulse {
             0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
+            100% { transform: scale(1.15); }
         }
     </style>
 </head>
@@ -91,7 +110,9 @@
 
     <!-- מסך ראשון -->
     <div id="screen-1" class="container">
-        <h1>את יודעת שאני אוהב אותך?</h1>
+        <!-- GIF ראשון - מסמיק -->
+        <img src="https://media.tenor.com/RdB18yNBvB8AAAAd/blush-blushing.gif" alt="מסמיק" class="media-img">
+        <h1>ליב, את יודעת שאני אוהב אותך?</h1>
         <div class="buttons-wrapper">
             <button onclick="nextScreen()">כן</button>
             <button onclick="nextScreen()">כן</button>
@@ -100,7 +121,9 @@
 
     <!-- מסך שני -->
     <div id="screen-2" class="container hidden">
-        <h1>את גם אוהבת אותי?</h1>
+        <!-- תמונה שנייה - חתול עם לבבות -->
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn3qGygy8QjoLssHmmby7tlAtDlLbKhVOj4w&s" alt="חתול לבבות" class="media-img">
+        <h1>ואת גם אוהבת אותי?</h1>
         <div class="buttons-wrapper" id="buttons-container-2">
             <button onclick="finalScreen()">כן</button>
             <button id="btn-no">לא</button>
@@ -109,6 +132,8 @@
 
     <!-- מסך סיום -->
     <div id="screen-3" class="container hidden">
+        <!-- GIF שלישי - שמח ומסמיק -->
+        <img src="https://media.tenor.com/_jH80HS4Al8AAAAM/happy-blush.gif" alt="שמח" class="media-img">
         <h1>ידעתי! 😍</h1>
         <div class="heart">❤️</div>
     </div>
@@ -132,21 +157,30 @@
             noBtn.style.position = 'fixed';
             
             // חישוב גבולות המסך כדי שהכפתור לא יברח החוצה
-            const maxX = window.innerWidth - noBtn.clientWidth - 20;
-            const maxY = window.innerHeight - noBtn.clientHeight - 20;
+            // אנחנו משאירים מרווח ביטחון קטן (padding)
+            const padding = 20;
+            const maxX = window.innerWidth - noBtn.clientWidth - padding;
+            const maxY = window.innerHeight - noBtn.clientHeight - padding;
 
-            // יצירת נקודות ציון אקראיות
-            const randomX = Math.max(10, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+            // יצירת נקודות ציון אקראיות בגבולות המסך
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
             // הזזת הכפתור
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
-        // מפעיל את הבריחה כשהעכבר מתקרב (למחשב) או כשמנסים ללחוץ (לטלפון)
+        // מפעיל את הבריחה כשהעכבר מתקרב (למחשב)
         noBtn.addEventListener('mouseover', dodge);
-        noBtn.addEventListener('touchstart', dodge);
+        
+        // מפעיל את הבריחה כשמנסים לגעת (לטלפון)
+        noBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // מונע התנהגות ברירת מחדל של מגע
+            dodge();
+        });
+
+        // ליתר ביטחון, אם היא מצליחה ללחוץ (קליק), זה גם יגרום לו לברוח
         noBtn.addEventListener('click', dodge);
     </script>
 
