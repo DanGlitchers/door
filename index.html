@@ -2,270 +2,153 @@
 <html dir="rtl" lang="he">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>המסע אל הלב שלך</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>שאלה חשובה...</title>
     <style>
         body {
-            background-color: #2b2b2b;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe6ea;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
 
-        h1 {
-            color: #ff6b81;
-            margin-bottom: 5px;
-            font-size: 24px;
-        }
-
-        p.instructions {
-            font-size: 14px;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-
-        /* עיצוב לוח המשחק */
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(10, 30px);
-            grid-template-rows: repeat(10, 30px);
-            gap: 2px;
-            background-color: #1a1a1a;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(255, 107, 129, 0.3);
-            direction: ltr; /* שומר על כיוון המפה */
-        }
-
-        .cell {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            border-radius: 4px;
-        }
-
-        /* סוגי המשבצות במשחק */
-        .wall { background-color: #57606f; }
-        .path { background-color: #ced6e0; }
-        
-        /* כפתורי שליטה לטלפון */
-        .controls {
-            margin-top: 30px;
-            display: grid;
-            grid-template-columns: 50px 50px 50px;
-            grid-template-rows: 50px 50px;
-            gap: 10px;
-            justify-content: center;
-            direction: ltr;
-        }
-
-        .btn {
-            background-color: #ff6b81;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #c23616;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-        }
-
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #c23616;
-        }
-
-        .btn-up { grid-column: 2; grid-row: 1; }
-        .btn-left { grid-column: 1; grid-row: 2; }
-        .btn-down { grid-column: 2; grid-row: 2; }
-        .btn-right { grid-column: 3; grid-row: 2; }
-
-        /* חלונית הסיום הקופצת */
-        #win-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
+        .container {
             text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-            animation: fadeIn 1s forwards;
-        }
-
-        .love-letter {
-            background-color: #fff0f5;
-            color: #2f3542;
+            background-color: white;
             padding: 40px;
-            border-radius: 15px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 105, 135, 0.2);
+            width: 90%;
             max-width: 400px;
-            box-shadow: 0 10px 30px rgba(255, 107, 129, 0.5);
-            border: 3px solid #ff4757;
         }
 
-        .love-letter h2 {
+        /* הסתרת מסכים לא פעילים */
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
             color: #ff4757;
-            font-size: 28px;
-            margin-top: 0;
+            font-size: 26px;
+            margin-bottom: 30px;
         }
 
-        .love-letter p {
-            font-size: 18px;
-            line-height: 1.6;
+        .buttons-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
+        button {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+            z-index: 10;
+        }
+
+        button:hover {
+            background-color: #ff6b81;
+            transform: scale(1.05);
+        }
+
+        /* כפתור הלא יהיה בעל מיקום שניתן לשנות */
+        #btn-no {
+            background-color: #747d8c;
+            box-shadow: 0 5px 15px rgba(116, 125, 140, 0.4);
+            transition: left 0.3s ease, top 0.3s ease; /* תנועה חלקה כשהוא בורח */
+        }
+
+        #btn-no:hover {
+            background-color: #57606f;
+        }
+
+        .heart {
+            font-size: 60px;
+            animation: pulse 1s infinite alternate;
+            margin-top: 20px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
     </style>
 </head>
 <body>
 
-    <h1>מצא את הדרך ללב שלי</h1>
-    <p class="instructions">השתמש בחיצים (או בכפתורים) כדי לאסוף את המפתח ולפתוח את הדלת!</p>
-
-    <div id="game-board"></div>
-
-    <div class="controls">
-        <button class="btn btn-up" onclick="move(0, -1)">⬆️</button>
-        <button class="btn btn-left" onclick="move(-1, 0)">⬅️</button>
-        <button class="btn btn-down" onclick="move(0, 1)">⬇️</button>
-        <button class="btn btn-right" onclick="move(1, 0)">➡️</button>
-    </div>
-
-    <!-- המכתב שיופיע בסוף -->
-    <div id="win-screen">
-        <div class="love-letter">
-            <h2>הצלחת! ❤️</h2>
-            <p>רציתי רק להגיד לך שאת/ה מדהים/ה.</p>
-            <p>הדרך לא תמיד פשוטה (לפעמים יש קירות ודלתות נעולות בדרך), אבל איתך כל פאזל הופך להרפתקה כיפית.</p>
-            <p>תודה שאת/ה תמיד מוצא/ת את המפתח ללב שלי! 💌</p>
+    <!-- מסך ראשון -->
+    <div id="screen-1" class="container">
+        <h1>את יודעת שאני אוהב אותך?</h1>
+        <div class="buttons-wrapper">
+            <button onclick="nextScreen()">כן</button>
+            <button onclick="nextScreen()">כן</button>
         </div>
     </div>
 
+    <!-- מסך שני -->
+    <div id="screen-2" class="container hidden">
+        <h1>את גם אוהבת אותי?</h1>
+        <div class="buttons-wrapper" id="buttons-container-2">
+            <button onclick="finalScreen()">כן</button>
+            <button id="btn-no">לא</button>
+        </div>
+    </div>
+
+    <!-- מסך סיום -->
+    <div id="screen-3" class="container hidden">
+        <h1>ידעתי! 😍</h1>
+        <div class="heart">❤️</div>
+    </div>
+
     <script>
-        // מפת המשחק: # קיר, . שביל, @ שחקן, K מפתח, D דלת, G מטרה
-        let level = [
-            "##########",
-            "#@.......#",
-            "###.####.#",
-            "#K#....#.#",
-            "#...##.#.#",
-            "######D###",
-            "#........#",
-            "#.######.#",
-            "#.......G#",
-            "##########"
-        ];
-
-        let playerPos = { x: 1, y: 1 };
-        let hasKey = false;
-        let gameWon = false;
-
-        const boardElement = document.getElementById('game-board');
-
-        // מילון האימוג'ים שלנו
-        const icons = {
-            'player': '😊',
-            'key': '🔑',
-            'door': '🚪',
-            'goal': '💌',
-            'wall': '',
-            'path': ''
-        };
-
-        function drawBoard() {
-            boardElement.innerHTML = '';
-            for (let y = 0; y < level.length; y++) {
-                for (let x = 0; x < level[y].length; x++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    
-                    let char = level[y][x];
-                    
-                    if (char === '#') cell.classList.add('wall');
-                    else cell.classList.add('path');
-
-                    if (x === playerPos.x && y === playerPos.y) {
-                        cell.innerText = icons.player;
-                    } else if (char === 'K') {
-                        cell.innerText = icons.key;
-                    } else if (char === 'D') {
-                        cell.innerText = icons.door;
-                    } else if (char === 'G') {
-                        cell.innerText = icons.goal;
-                        cell.style.animation = "pulse 1s infinite alternate";
-                    }
-
-                    boardElement.appendChild(cell);
-                }
-            }
+        function nextScreen() {
+            document.getElementById('screen-1').classList.add('hidden');
+            document.getElementById('screen-2').classList.remove('hidden');
         }
 
-        function move(dx, dy) {
-            if (gameWon) return;
-
-            let newX = playerPos.x + dx;
-            let newY = playerPos.y + dy;
-            let targetChar = level[newY][newX];
-
-            // בדיקת התנגשות בקירות
-            if (targetChar === '#') return;
-
-            // בדיקת התנגשות בדלת
-            if (targetChar === 'D') {
-                if (hasKey) {
-                    // פותח את הדלת - מחליף את ה-D בנקודה במפה
-                    level[newY] = level[newY].substring(0, newX) + '.' + level[newY].substring(newX + 1);
-                    hasKey = false; // השתמשנו במפתח
-                } else {
-                    return; // אין מפתח, אי אפשר לעבור
-                }
-            }
-
-            // איסוף מפתח
-            if (targetChar === 'K') {
-                hasKey = true;
-                level[newY] = level[newY].substring(0, newX) + '.' + level[newY].substring(newX + 1);
-            }
-
-            // הגעה ליעד
-            if (targetChar === 'G') {
-                gameWon = true;
-                document.getElementById('win-screen').style.display = 'flex';
-            }
-
-            playerPos.x = newX;
-            playerPos.y = newY;
-            drawBoard();
+        function finalScreen() {
+            document.getElementById('screen-2').classList.add('hidden');
+            document.getElementById('screen-3').classList.remove('hidden');
         }
 
-        // האזנה למקלדת (למי שמשחק במחשב)
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') move(0, -1);
-            if (e.key === 'ArrowDown') move(0, 1);
-            if (e.key === 'ArrowLeft') move(-1, 0);
-            if (e.key === 'ArrowRight') move(1, 0);
-        });
+        const noBtn = document.getElementById('btn-no');
 
-        // ציור ראשוני של הלוח
-        drawBoard();
+        // פונקציה שמזיזה את הכפתור למקום אקראי על המסך
+        function dodge() {
+            // משנה את המיקום למוחלט כדי שיוכל לזוז בחופשיות על המסך
+            noBtn.style.position = 'fixed';
+            
+            // חישוב גבולות המסך כדי שהכפתור לא יברח החוצה
+            const maxX = window.innerWidth - noBtn.clientWidth - 20;
+            const maxY = window.innerHeight - noBtn.clientHeight - 20;
+
+            // יצירת נקודות ציון אקראיות
+            const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+
+            // הזזת הכפתור
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        }
+
+        // מפעיל את הבריחה כשהעכבר מתקרב (למחשב) או כשמנסים ללחוץ (לטלפון)
+        noBtn.addEventListener('mouseover', dodge);
+        noBtn.addEventListener('touchstart', dodge);
+        noBtn.addEventListener('click', dodge);
     </script>
+
 </body>
 </html>
