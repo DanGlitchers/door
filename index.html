@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הדלת - חוויה אינטראקטיבית</title>
+    <style>
+        :root {
+            --bg-color: #f4f1ea;
+            --text-color: #2b2b2b;
+            --door-color: #a0522d;
+            --door-frame: #8b4513;
+            --accent-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            transition: background-color 1s ease;
+        }
+
+        #game-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.2rem;
+            min-height: 50px;
+            color: #555;
+            transition: color 0.5s;
+        }
+
+        /* הבמה של הדלת - תלת מימד */
+        .stage {
+            perspective: 1200px;
+            width: 200px;
+            height: 320px;
+            margin: 40px auto;
+            position: relative;
+        }
+
+        /* משקוף הדלת */
+        .door-frame {
+            width: 100%;
+            height: 100%;
+            border: 8px solid var(--door-frame);
+            border-bottom: none;
+            background: #111; /* מה שרואים כשהדלת נפתחת */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: visible;
+        }
+
+        /* האור שבוקע מבפנים */
+        .light-beam {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, rgba(255,235,160,1) 0%, rgba(255,160,0,0) 70%);
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+        }
+
+        /* הדלת עצמה */
+        .door {
+            width: 100%;
+            height: 100%;
+            background-color: var(--door-color);
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: left;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-left: 20px;
+            box-sizing: border-box;
+        }
+
+        /* ידית הדלת */
+        .knob {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
+            border-radius: 50%;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+        }
+
+        .door:hover .knob {
+            transform: scale(1.1);
+        }
+
+        /* מצב דלת פתוחה */
+        .door.open {
+            transform: rotateY(-115deg);
+            box-shadow: none;
+        }
+
+        /* פריטים אינטראקטיביים מסביב */
+        .rug {
+            width: 160px;
+            height: 30px;
+            background-color: #34495e;
+            border-radius: 15px;
+            margin-top: -10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            z-index: 10;
+            position: relative;
+        }
+
+        .rug:hover {
+            transform: translateY(3px);
+        }
+
+        .key {
+            width: 35px;
+            height: 15px;
+            background-color: #ffd700;
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.3s;
+            display: none;
+            clip-path: polygon(0% 20%, 30% 20%, 30% 0%, 50% 0%, 50% 20%, 70% 20%, 70% 0%, 85% 0%, 85% 20%, 100% 20%, 100% 80%, 0% 80%);
+        }
+
+        /* כפתור איפוס/המשך */
+        .btn {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* אפקט רעידה קל כשהדלת נעולה */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1 id="title">הדלת</h1>
+        <p id="message">יש כאן דלת. מעניין מה יש מאחוריה?</p>
+
+        <div class="stage">
+            <div class="door-frame">
+                <div class="light-beam" id="light"></div>
+                <div class="door" id="door" onclick="tryOpenDoor()">
+                    <div class="knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rug" id="rug" onclick="liftRug()"></div>
+        <div class="key" id="key" onclick="grabKey()"></div>
+
+        <button class="btn" id="action-btn" onclick="resetGame()">להתחיל מחדש</button>
+    </div>
+
+    <script>
+        // ניהול מצבי המשחק (State Machine)
+        let state = {
+            hasKey: false,
+            rugLifted: false,
+            isUnlocked: false,
+            isOpen: false
+        };
+
+        const messageEl = document.getElementById('message');
+        const doorEl = document.getElementById('door');
+        const rugEl = document.getElementById('rug');
+        const keyEl = document.getElementById('key');
+        const lightEl = document.getElementById('light');
+        const btnEl = document.getElementById('action-btn');
+
+        function updateMessage(text) {
+            messageEl.style.opacity = 0;
+            setTimeout(() => {
+                messageEl.innerText = text;
+                messageEl.style.opacity = 1;
+            }, 300);
+        }
+
+        function tryOpenDoor() {
+            if (state.isOpen) return;
+
+            if (!state.isUnlocked && !state.hasKey) {
+                // הדלת נעולה ואין מפתח
+                doorEl.classList.add('shake');
+                updateMessage("הדלת נעולה לחלוטין. אולי המפתח מתחבא באזור?");
+                setTimeout(() => doorEl.classList.remove('shake'), 400);
+            } 
+            else if (state.hasKey && !state.isUnlocked) {
+                // שימוש במפתח
+                state.isUnlocked = true;
+                state.hasKey = false;
+                keyEl.style.display = 'none';
+                doorEl.classList.add('shake');
+                updateMessage("*קליק*. הדלת נפתחה! עכשיו אפשר לפתוח אותה.");
+                setTimeout(() => doorEl.classList.remove('shake'), 400);
+            } 
+            else if (state.isUnlocked) {
+                // פתיחת הדלת
+                state.isOpen = true;
+                doorEl.classList.add('open');
+                lightEl.style.opacity = 1;
+                document.body.style.backgroundColor = "#1a1a1a";
+                document.body.style.color = "#ffffff";
+                messageEl.style.color = "#ffd700";
+                
+                updateMessage("פתחת את הדלת. לפעמים כל מה שצריך זה לחפש מתחת לפני השטח.");
+                btnEl.classList.add('visible');
+            }
+        }
+
+        function liftRug() {
+            if (state.rugLifted || state.isUnlocked || state.isOpen) return;
+            
+            state.rugLifted = true;
+            rugEl.style.transform = 'translateY(15px) scaleY(0.5)';
+            keyEl.style.display = 'block';
+            setTimeout(() => keyEl.style.opacity = 1, 50);
+            updateMessage("הזזת את השטיח... והנה מפתח זהב שבוקע ממנו אור!");
+        }
+
+        function grabKey() {
+            if (state.hasKey || state.isUnlocked) return;
+            state.hasKey = true;
+            keyEl.style.transform = 'scale(0)';
+            updateMessage("אספת את המפתח! נסה ללחוץ על הדלת כעת.");
+        }
+
+        function resetGame() {
+            state = { hasKey: false, rugLifted: false, isUnlocked: false, isOpen: false };
+            doorEl.classList.remove('open');
+            lightEl.style.opacity = 0;
+            rugEl.style.transform = 'none';
+            keyEl.style.display = 'none';
+            keyEl.style.transform = 'none';
+            keyEl.style.opacity = 0;
+            btnEl.classList.remove('visible');
+            document.body.style.backgroundColor = "var(--bg-color)";
+            document.body.style.color = "var(--text-color)";
+            messageEl.style.color = "#555";
+            updateMessage("יש כאן דלת. מעניין מה יש מאחוריה?");
+        }
+    </script>
+</body>
+</html>
